@@ -1,0 +1,79 @@
+// Cursor Chat Archive - Database Schema
+// Neon (Postgres) + Prisma ORM
+//
+// セットアップ手順:
+// 1. .env.example を .env にコピーし、Neon の DATABASE_URL を設定
+// 2. npm run db:generate
+// 3. npm run db:push
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Chat {
+  id        String   @id @default(cuid())
+  title     String
+  project   String?  @map("project_context")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  messages Message[]
+  tags     ChatTag[]
+  note     Note?
+
+  @@map("chats")
+}
+
+model Message {
+  id        String      @id @default(cuid())
+  chatId    String      @map("chat_id")
+  role      MessageRole
+  content   String      @db.Text
+  createdAt DateTime    @default(now()) @map("created_at")
+
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@index([chatId])
+  @@map("messages")
+}
+
+enum MessageRole {
+  user
+  assistant
+}
+
+model Tag {
+  id   String @id @default(cuid())
+  name String @unique
+
+  chats ChatTag[]
+
+  @@map("tags")
+}
+
+model ChatTag {
+  chatId String @map("chat_id")
+  tagId  String @map("tag_id")
+
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([chatId, tagId])
+  @@map("chat_tags")
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  chatId    String   @unique @map("chat_id")
+  content   String   @db.Text
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@map("notes")
+}
