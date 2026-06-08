@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Search } from "lucide-react";
+import { Import, Plus, Search } from "lucide-react";
 import type { Chat, Tag } from "@/types/chat";
 import { TagBadge } from "./TagBadge";
 
@@ -12,6 +12,7 @@ interface ChatThreadPaneProps {
   onSearchChange: (query: string) => void;
   onSelectChat: (chatId: string) => void;
   onNewChat: () => void;
+  onImport: () => void;
 }
 
 function formatDate(dateStr: string): string {
@@ -36,6 +37,7 @@ export function ChatThreadPane({
   onSearchChange,
   onSelectChat,
   onNewChat,
+  onImport,
 }: ChatThreadPaneProps) {
   const tagMap = Object.fromEntries(tags.map((t) => [t.id, t]));
 
@@ -52,14 +54,24 @@ export function ChatThreadPane({
   return (
     <aside className="flex w-[25%] min-w-[220px] shrink-0 flex-col border-r border-[var(--border)] bg-[var(--bg-secondary)]">
       <div className="border-b border-[var(--border)] p-3">
-        <button
-          type="button"
-          onClick={onNewChat}
-          className="mb-3 flex w-full items-center justify-center gap-2 rounded-md bg-[var(--accent)] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--accent-hover)]"
-        >
-          <Plus size={16} />
-          New Chat
-        </button>
+        <div className="mb-3 flex gap-2">
+          <button
+            type="button"
+            onClick={onNewChat}
+            className="flex flex-1 items-center justify-center gap-2 rounded-md bg-[var(--accent)] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--accent-hover)]"
+          >
+            <Plus size={16} />
+            New Chat
+          </button>
+          <button
+            type="button"
+            onClick={onImport}
+            title="Import"
+            className="flex items-center justify-center rounded-md border border-[var(--border)] px-3 py-2 text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)]"
+          >
+            <Import size={16} />
+          </button>
+        </div>
         <div className="relative">
           <Search
             size={14}

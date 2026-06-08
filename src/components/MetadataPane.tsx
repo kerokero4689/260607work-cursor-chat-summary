@@ -10,8 +10,10 @@ interface MetadataPaneProps {
   selectedTagIds: string[];
   project: string;
   note: string;
+  noteSaveState?: "idle" | "saving" | "saved";
   onToggleTag: (tagId: string) => void;
   onNoteChange: (note: string) => void;
+  onAddTag: (name: string) => void;
   onExport: () => Promise<void>;
 }
 
@@ -20,8 +22,10 @@ export function MetadataPane({
   selectedTagIds,
   project,
   note,
+  noteSaveState = "idle",
   onToggleTag,
   onNoteChange,
+  onAddTag,
   onExport,
 }: MetadataPaneProps) {
   const [isExporting, setIsExporting] = useState(false);
@@ -61,6 +65,12 @@ export function MetadataPane({
             placeholder="Add Tag..."
             value={customTag}
             onChange={(e) => setCustomTag(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && customTag.trim()) {
+                onAddTag(customTag.trim());
+                setCustomTag("");
+              }
+            }}
             className="mb-3 w-full rounded-md border border-[var(--border)] bg-[var(--bg-primary)] px-3 py-1.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--border-active)] focus:outline-none"
           />
           <div className="flex flex-wrap gap-2">
@@ -88,12 +98,20 @@ export function MetadataPane({
 
         {/* Notes */}
         <section className="mb-5">
-          <label
-            htmlFor="notes"
-            className="mb-2 block text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]"
-          >
-            Notes
-          </label>
+          <div className="mb-2 flex items-center justify-between">
+            <label
+              htmlFor="notes"
+              className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]"
+            >
+              Notes
+            </label>
+            {noteSaveState === "saving" && (
+              <span className="text-[10px] text-[var(--text-muted)]">保存中…</span>
+            )}
+            {noteSaveState === "saved" && (
+              <span className="text-[10px] text-[#3fb950]">保存しました</span>
+            )}
+          </div>
           <textarea
             id="notes"
             value={note}
