@@ -9,6 +9,13 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
     },
   });
 
+  if (res.status === 401) {
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    }
+    throw new Error("Unauthorized");
+  }
+
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.error ?? `Request failed: ${res.status}`);
